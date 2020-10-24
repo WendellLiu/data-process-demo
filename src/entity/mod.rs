@@ -5,9 +5,9 @@ use serde::Deserialize;
 
 use std::collections::{HashMap, HashSet};
 
-type ShopperID = String;
-type ProductID = u64;
-type Datetime = DateTime<Utc>;
+pub type ShopperID = String;
+pub type ProductID = u64;
+pub type Datetime = DateTime<Utc>;
 pub type HistoryMap = HashMap<ShopperID, HashSet<ProductID>>;
 
 #[derive(Debug, Deserialize)]

@@ -2,6 +2,7 @@ use entity::{to_history_map, HistoryMap};
 use process::read_raw_data;
 
 mod entity;
+mod helpers;
 mod process;
 
 fn main() {
