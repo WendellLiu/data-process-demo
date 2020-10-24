@@ -23,7 +23,7 @@ pub fn to_history_map(records: Vec<schema::PurchaseRecord>) -> schema::HistoryMa
     return result;
 }
 
-fn get_intersection(a: &schema::ProductIDs, b: &schema::ProductIDs) -> entity::ProductIDs {
+fn get_intersection(a: &schema::ProductIDs, b: &schema::ProductIDs) -> schema::ProductIDs {
     let mut set = HashSet::new();
 
     let intersection = a.intersection(b);
