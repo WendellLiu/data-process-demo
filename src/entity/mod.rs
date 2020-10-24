@@ -10,6 +10,8 @@ pub type ProductID = u64;
 pub type Datetime = DateTime<Utc>;
 pub type HistoryMap = HashMap<ShopperID, HashSet<ProductID>>;
 
+pub type JaccardIndex = f64;
+
 #[derive(Debug, Deserialize)]
 pub struct PurchaseRecord {
     #[serde(rename = "Shopper ID")]
