@@ -1,4 +1,4 @@
-use crate::entity::PurchaseRecord;
+use crate::entity::schema::PurchaseRecord;
 use csv::ReaderBuilder;
 
 pub fn read_raw_data(path: &'static str) -> Result<Vec<PurchaseRecord>, csv::Error> {
