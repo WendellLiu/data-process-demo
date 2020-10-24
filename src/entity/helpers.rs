@@ -51,7 +51,7 @@ fn get_union(a: &schema::ProductIDs, b: &schema::ProductIDs) -> schema::ProductI
     return set;
 }
 
-fn get_jaccard_index(a: &schema::ProductIDs, b: &schema::ProductIDs) -> schema::JaccardIndex {
+pub fn get_jaccard_index(a: &schema::ProductIDs, b: &schema::ProductIDs) -> schema::JaccardIndex {
     let intersection_len = get_intersection(a, b).len() as f64;
     let union_len = get_union(a, b).len() as f64;
 
