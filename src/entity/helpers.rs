@@ -57,11 +57,24 @@ pub fn get_recommendation_parameters(
     product_id: schema::ProductID,
     history_map: schema::HistoryMap,
 ) -> (schema::ProductIDs, Vec<schema::ProductIDs>) {
-    let a: schema::ProductIDs = [].iter().cloned().collect();
-    let b: schema::ProductIDs = [].iter().cloned().collect();
-    let c: schema::ProductIDs = [].iter().cloned().collect();
+    let mut temp_history_map = history_map.clone();
 
-    return (a, vec![b, c]);
+    // TODO: handle Option
+    temp_history_map.remove(&shopper_id).unwrap();
+
+    // TODO: handle Option
+    let target: schema::ProductIDs = history_map.get(&shopper_id).unwrap().clone();
+
+    let mut rest: Vec<schema::ProductIDs> = Vec::new();
+
+    for (_, product_ids) in temp_history_map.iter() {
+        match product_ids.get(&product_id) {
+            Some(_) => rest.push(product_ids.clone()),
+            None => (),
+        }
+    }
+
+    return (target, rest);
 }
 
 pub fn get_recommendation_index(
@@ -115,14 +128,27 @@ mod tests {
         let a: schema::ProductIDs = [1, 2, 3, 4].iter().cloned().collect();
         let b: schema::ProductIDs = [2, 3, 4, 5].iter().cloned().collect();
         let c: schema::ProductIDs = [1, 3, 5].iter().cloned().collect();
-
         let d: schema::ProductIDs = [2, 4, 6].iter().cloned().collect();
-        let (target, rest) = get_recommendation_parameters();
-        assert_eq!(target, [1, 3, 5].iter().cloned().collect());
+
+        let shopper_id_a = String::from("Paul");
+        let shopper_id_b = String::from("John");
+        let shopper_id_c = String::from("George");
+        let shopper_id_d = String::from("Ringo");
+
+        let mut history_map = schema::HistoryMap::new();
+        history_map.insert(shopper_id_a.clone(), a);
+        history_map.insert(shopper_id_b.clone(), b);
+        history_map.insert(shopper_id_c.clone(), c);
+        history_map.insert(shopper_id_d.clone(), d);
+
+        let (target, rest) = get_recommendation_parameters(shopper_id_a, 5, history_map);
+        assert_eq!(target, [1, 2, 3, 4].iter().cloned().collect());
+
+        // TODO: fix to pass everytime
         assert_eq!(
             rest,
             vec![
-                [1, 3, 5].iter().cloned().collect(),
+                [2, 3, 4, 5].iter().cloned().collect(),
                 [1, 3, 5].iter().cloned().collect(),
             ]
         );
