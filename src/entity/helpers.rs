@@ -2,25 +2,31 @@ use crate::entity::schema;
 
 use std::collections::HashSet;
 
-pub fn to_history_map(records: Vec<schema::PurchaseRecord>) -> schema::HistoryMap {
-    let mut result = schema::HistoryMap::new();
+pub fn to_material(
+    records: Vec<schema::PurchaseRecord>,
+) -> (schema::HistoryMap, schema::ShopperIDs, schema::ProductIDs) {
+    let mut history_map = schema::HistoryMap::new();
+    let mut shopper_ids = schema::ShopperIDs::new();
+    let mut product_ids = schema::ProductIDs::new();
 
     for record in records.iter() {
-        match result.get(&record.shopper_id) {
+        shopper_ids.insert(record.shopper_id.clone());
+        product_ids.insert(record.product_id.clone());
+        match history_map.get(&record.shopper_id) {
             Some(products) => {
                 let mut p = products.clone();
                 p.insert(record.product_id);
-                result.insert(record.shopper_id.clone(), p);
+                history_map.insert(record.shopper_id.clone(), p);
             }
             None => {
                 let mut set = HashSet::new();
                 set.insert(record.product_id);
-                result.insert(record.shopper_id.clone(), set);
+                history_map.insert(record.shopper_id.clone(), set);
             }
         }
     }
 
-    return result;
+    return (history_map, shopper_ids, product_ids);
 }
 
 fn get_intersection(a: &schema::ProductIDs, b: &schema::ProductIDs) -> schema::ProductIDs {
@@ -54,8 +60,8 @@ fn get_jaccard_index(a: &schema::ProductIDs, b: &schema::ProductIDs) -> schema::
 
 pub fn get_recommendation_parameters(
     shopper_id: schema::ShopperID,
-    product_id: schema::ProductID,
-    history_map: schema::HistoryMap,
+    product_id: &schema::ProductID,
+    history_map: &schema::HistoryMap,
 ) -> (schema::ProductIDs, Vec<schema::ProductIDs>) {
     let mut temp_history_map = history_map.clone();
 
@@ -68,7 +74,7 @@ pub fn get_recommendation_parameters(
     let mut rest: Vec<schema::ProductIDs> = Vec::new();
 
     for (_, product_ids) in temp_history_map.iter() {
-        match product_ids.get(&product_id) {
+        match product_ids.get(product_id) {
             Some(_) => rest.push(product_ids.clone()),
             None => (),
         }
@@ -79,13 +85,13 @@ pub fn get_recommendation_parameters(
 
 pub fn get_recommendation_index(
     target: &schema::ProductIDs,
-    rest: Vec<&schema::ProductIDs>,
+    rest: Vec<schema::ProductIDs>,
 ) -> schema::JaccardIndex {
     let length = rest.len() as schema::JaccardIndex;
 
     let mut sum = 0 as schema::JaccardIndex;
     for rt in rest {
-        sum += get_jaccard_index(target, rt);
+        sum += get_jaccard_index(target, &rt);
     }
     return sum / length;
 }
@@ -141,7 +147,7 @@ mod tests {
         history_map.insert(shopper_id_c.clone(), c);
         history_map.insert(shopper_id_d.clone(), d);
 
-        let (target, rest) = get_recommendation_parameters(shopper_id_a, 5, history_map);
+        let (target, rest) = get_recommendation_parameters(shopper_id_a, &5, &history_map);
         assert_eq!(target, [1, 2, 3, 4].iter().cloned().collect());
 
         // TODO: fix to pass everytime
@@ -161,7 +167,7 @@ mod tests {
         let b: schema::ProductIDs = [2, 3, 4, 5].iter().cloned().collect();
         let c: schema::ProductIDs = [1, 3, 5].iter().cloned().collect();
 
-        let recommend_index = get_recommendation_index(&a, vec![&b, &c]);
+        let recommend_index = get_recommendation_index(&a, vec![b, c]);
         assert_eq!(recommend_index, 0.5);
     }
 }

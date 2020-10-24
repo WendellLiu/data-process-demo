@@ -9,6 +9,7 @@ pub type ShopperID = String;
 pub type ProductID = u64;
 pub type Datetime = DateTime<Utc>;
 pub type ProductIDs = HashSet<ProductID>;
+pub type ShopperIDs = HashSet<ShopperID>;
 pub type HistoryMap = HashMap<ShopperID, ProductIDs>;
 
 pub type JaccardIndex = f64;
